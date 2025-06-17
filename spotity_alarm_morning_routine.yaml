@@ -1,0 +1,93 @@
+# ----- Delete this before use -----
+# Requirements
+# - Alexa Media Player integration via HACS
+# - SpotifyPlus integration via HACS
+# - Spotify Premium account
+# - Spotify playlist URI - 22 characters
+# Weather forecast entities are from Accuweather
+# Filters were added to the temperature variables to get a whole number from TTS
+# ----- Delete this before use -----
+
+alias: Bedroom_morning_routine_weekday
+description: ""
+triggers:
+  - at: "05:55:00"
+    trigger: time
+conditions:
+  - condition: time
+    weekday:
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+actions:
+  - data:
+      transition: 300
+      rgb_color:
+        - 255
+        - 136
+        - 0
+      brightness_pct: 75
+    target:
+      entity_id: light.master_bed_lamps
+    action: light.turn_on
+  - delay:
+      hours: 0
+      minutes: 5
+      seconds: 0
+      milliseconds: 0
+  - data:
+      message: >- 
+        Good Morning! Today will be {{
+        states('sensor.home_condition_day_0') }}. It will reach {{
+        states('sensor.home_realfeel_temperature_max_day_0') | float | round(0)
+        }} degrees, and cool down to {{
+        states('sensor.home_realfeel_temperature_min_day_0') | float | round(0)
+        }} degrees. 
+    action: notify.alexa_media_echodot
+  - data:
+      entity_id: media_player.spotifyplus
+      device_id: Echodot
+      play: false
+    action: spotifyplus.player_transfer_playback
+  - target:
+      entity_id: media_player.spotifyplus
+    data:
+      media_content_type: playlist
+      media_content_id: spotify:playlist:1o3dz2CJ6WRxn42itt8541 #replace with your playlist URI
+    action: media_player.play_media
+  - target:
+      entity_id: media_player.spotifyplus
+    data:
+      shuffle: true
+    action: media_player.shuffle_set
+  - target:
+      entity_id: media_player.spotifyplus
+    action: media_player.media_next_track
+    data: {}
+  - data:
+      transition: 300
+      rgb_color:
+        - 255
+        - 198
+        - 77
+      brightness_pct: 100
+    target:
+      entity_id: light.master_bed_lamps
+    action: light.turn_on
+  - delay:
+      hours: 0
+      minutes: 30
+      seconds: 0
+      milliseconds: 0
+  - data:
+      transition: 300
+    target:
+      entity_id: light.master_bed_lamps
+    action: light.turn_off
+  - data: {}
+    target:
+      entity_id: media_player.echo_dot
+    action: media_player.media_stop
+mode: single
